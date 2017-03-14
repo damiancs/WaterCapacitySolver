@@ -4,7 +4,7 @@ Test this package.
 """
 from __future__ import print_function
 from unittest import TestCase
-from src.solver import Solver
+from WaterCapacitySolver.solver import Solver
 
 
 class TestSolver(TestCase):

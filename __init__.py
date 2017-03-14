@@ -3,7 +3,7 @@
 Init file for WaterCapacitySolver module.
 """
 
-from src.solver import Solver
-from src.errors import SolverError
+from WaterCapacitySolver.solver import Solver
+from WaterCapacitySolver.errors import SolverError
 
 __all__ = ["Solver", "SolverError"]
