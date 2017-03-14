@@ -3,6 +3,8 @@
 Solver class. This module has the actual logic for solving the Water Capacity game.
 """
 
+import re
+
 
 class Solver(object):
     """
@@ -27,10 +29,12 @@ class Solver(object):
         self._solution_bucket = solution[0]
         self._solution_quantity = solution[1]
         self._flags = flags
+        self._log = list()
         self._result = list()
         self._result.append([bucket[0] for bucket in buckets])
         self._moves = self._create_moves()
-        self._solve()
+        self._solve(1)
+        self._log = list(reversed(self._log))
 
     def _create_moves(self):
         """
@@ -41,11 +45,12 @@ class Solver(object):
         actions = list()
         # creating halves, fills and empties
         for i in range(self._buckets):
+            for j in range(1, self._buckets):
+                actions.append("self._add({}, {})".format(i, (i + j) % self._buckets))
             # actions.append("self._half({})".format(i))
             actions.append("self._fill({})".format(i))
             actions.append("self._empty({})".format(i))
-            for j in range(1, self._buckets):
-                actions.append("self._add({}, {})".format(i, i + j))
+
         return actions
 
     def _is_full(self, idx):
@@ -79,7 +84,7 @@ class Solver(object):
         if not self._can_move() or self._is_empty(idx):
             return False
         temp = [quantity for quantity in self._result[-1]]
-        temp[idx] /= 2
+        temp[idx] /= 2.0
         self._result.append(temp)
         return True
 
@@ -109,30 +114,30 @@ class Solver(object):
         if not self._can_move() or self._is_empty(idx):
             return False
         temp = [quantity for quantity in self._result[-1]]
-        temp[idx] = 0
+        temp[idx] = 0.0
         self._result.append(temp)
         return True
 
-    def _add(self, idx, span):
+    def _add(self, idx, jdx):
         """
         Add into the bucket passed by the index the liquid from the bucked at span distance from the first bucket.
         :param idx: The index of the destination bucket.
          :type idx: int
-        :param span: The distance from the destination bucket to the source bucket.
-         :type span: int
+        :param jdx: The distance from the destination bucket to the source bucket.
+         :type jdx: int
         :return: A boolean value showing if the move is validated.
          :rtype: bool
         """
-        if not self._can_move():
+        if not self._can_move() or self._is_empty(jdx):
             return False
         temp = [quantity for quantity in self._result[-1]]
-        total = temp[idx] + temp[(idx + span) % self._buckets]
+        total = temp[idx] + temp[jdx]
         if total <= self._bucket_list[idx][1]:
             temp[idx] = total
-            temp[(idx + span) % self._buckets] = 0
+            temp[jdx] = 0.0
         else:
             temp[idx] = self._bucket_list[idx][1]
-            temp[(idx + span) % self._buckets] = total - self._bucket_list[idx][1]
+            temp[jdx] = total - self._bucket_list[idx][1]
         self._result.append(temp)
         return True
 
@@ -158,8 +163,38 @@ class Solver(object):
         """
         return len(self._result) <= self._max_steps
 
-    def _solve(self):
+    def _solve(self, step):
         """
         Solve the game.
         """
-        pass
+        if step <= self._max_steps:
+            for move in self._moves:
+                if not eval(move):
+                    continue
+                else:
+                    if self._is_solved():
+                        self._log.append(move)
+                        print(self._result)
+                        return True
+                    if self._solve(step + 1):
+                        self._log.append(move)
+                        return True
+                    else:
+                        self._undo()
+
+    def __repr__(self):
+        steps = list()
+        for move in self._log:
+            if "add" in move:
+                data = re.findall("self\._add\(\s*(\d+)\s*,\s*(\d+)\s*\)", move)
+                idx = int(data[0][0])
+                jdx = int(data[0][1])
+                steps.append("Add content of {} litter(s) bucket to the {} litter(s) bucket.".format(
+                    self._bucket_list[jdx][1], self._bucket_list[idx][1]))
+            elif "empty" in move:
+                idx = int(re.search("self\._empty\((\d+)\)", move).group(1))
+                steps.append("Empty the {} litter(s) bucket.".format(self._bucket_list[idx][1]))
+            elif "fill" in move:
+                idx = int(re.search("self\._fill\((\d+)\)", move).group(1))
+                steps.append("Fill the {} litter(s) bucket.".format(self._bucket_list[idx][1]))
+        return "\n".join(steps)

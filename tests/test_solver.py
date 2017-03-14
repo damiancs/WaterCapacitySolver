@@ -20,4 +20,4 @@ class TestSolver(TestCase):
         """
         Test the solution.
         """
-        print(self._solver._moves)
+        self.assertEqual(repr(self._solver).count("\n"), 4)
