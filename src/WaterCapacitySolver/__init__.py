@@ -3,7 +3,6 @@
 Inside WaterCapacitySolver directory init file.
 """
 
-from solver import Solver
-from errors import SolverError
+from solver import Solver, BucketError
 
-__all__ = ["Solver", "SolverError"]
+__all__ = ["Solver", "BucketError"]

@@ -4,7 +4,7 @@ Test this package.
 """
 from __future__ import print_function
 from unittest import TestCase
-from ..WaterCapacitySolver.solver import Solver
+from ..WaterCapacitySolver.solver import Solver, BucketError
 
 
 class TestSolver(TestCase):
@@ -21,3 +21,10 @@ class TestSolver(TestCase):
         Test the solution.
         """
         self.assertEqual(repr(self._solver).count("\n"), 4)
+
+    def test_error(self):
+        """
+        Test the error raised if quantity is greater than capacity.
+        """
+        with self.assertRaises(BucketError):
+            solver = Solver(1, [(4.0, 3.0)], (0, 5.0))

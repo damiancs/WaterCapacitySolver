@@ -6,6 +6,13 @@ Solver class. This module has the actual logic for solving the Water Capacity ga
 import re
 
 
+class BucketError(StandardError):
+    """
+    The error raised if the quantity stored is greater than bucket's capacity.
+    """
+    pass
+
+
 class Solver(object):
     """
     The solver class. This class holds the logic for solving the Water Capacity game.
@@ -25,6 +32,9 @@ class Solver(object):
         """
         self._max_steps = steps
         self._bucket_list = buckets
+        for bucket in buckets:
+            if bucket[0] > bucket[1]:
+                raise BucketError("Cannot store a quantity bigger than the bucket's capacity.")
         self._buckets = len(buckets)
         self._solution_bucket = solution[0]
         self._solution_quantity = solution[1]
