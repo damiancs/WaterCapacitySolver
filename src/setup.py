@@ -15,7 +15,8 @@ def read_license():
     """
     license_text = "MIT License"
     try:
-        with open(os.path.join(os.path.dirname(__file__), 'LICENSE')) as license_file:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                               'LICENSE')) as license_file:
             license_text = license_file.read()
     except IOError:
         pass
@@ -30,7 +31,8 @@ def read_description():
     """
     description_text = ""
     try:
-        with open(os.path.join(os.path.dirname(__file__), 'README.md')) as description_file:
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                               'README.md')) as description_file:
             description_text = description_file.read()
     except IOError:
         pass
